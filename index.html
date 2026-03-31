@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taiwan Image Transcreation | 台灣文化圖像轉譯系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* PDF Color Scheme Interpretation */
+        :root {
+            --tw-red: #D22027; /* Taiwan Flag Red inspired */
+            --tw-blue: #0029CC; /* Taiwan Flag Blue inspired */
+        }
+        
+        .step-card {
+            transition: all 0.3s ease;
+        }
+        .step-card.active {
+            border-color: var(--tw-red);
+            background-color: #FEF2F2;
+        }
+        
+        .loading-dots:after {
+            content: '.';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">TW</div>
+                        <span class="font-bold text-gray-900 tracking-wide">Image Transcreation</span>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="#" class="border-red-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">系統展示</a>
+                        <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">知識庫 (Phase 1)</a>
+                        <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">關於專案</a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-500">v2.1 (Metrics Added)</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section (From PDF Page 1 & 4) -->
+    <header class="bg-white shadow-sm pb-8 pt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl mb-2">
+                教 AI 用<span class="text-red-600">台灣的眼睛</span>看世界
+            </h1>
+            <p class="max-w-2xl mx-auto text-xl text-gray-500">
+                結合「文化理解」與「圖像轉譯」的生成系統，解決 AI 的在地知識空白。
+            </p>
+        </div>
+    </header>
+
+    <!-- Main System Interface -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Panel: Controls & Phases -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Input Area -->
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        Original Caption (通用描述)
+                    </label>
+                    <div class="relative">
+                        <input type="text" id="inputPrompt" 
+                            class="block w-full rounded-lg border-gray-300 pl-4 pr-12 py-3 shadow-sm focus:border-red-500 focus:ring-red-500 text-lg" 
+                            placeholder="e.g., a bowl of noodles" value="a bowl of noodles">
+                        <button onclick="runSystem()" id="runBtn"
+                            class="absolute right-2 top-2 bg-red-600 text-white p-2 rounded-md hover:bg-red-700 transition">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="mt-3 flex gap-2 overflow-x-auto pb-2">
+                        <span class="text-xs text-gray-500 py-1">Try:</span>
+                        <button onclick="setInput('busy city traffic')" class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition">busy city traffic</button>
+                        <button onclick="setInput('a building')" class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition">a building</button>
+                        <button onclick="setInput('people celebrating')" class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition">people celebrating</button>
+                        <button onclick="setInput('drinking tea')" class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition">drinking tea</button>
+                    </div>
+                </div>
+
+                <!-- Phase Visualization (PDF Page 9-11) -->
+                <div class="space-y-4">
+                    
+                    <!-- Phase 1 -->
+                    <div id="phase1" class="step-card bg-white rounded-lg border border-gray-200 p-4 opacity-50">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold step-num">1</div>
+                            <h3 class="font-bold text-gray-800">Phase 1: Knowledge Retrieval</h3>
+                        </div>
+                        <div class="ml-9 text-sm text-gray-600">
+                            <p>Querying <code class="bg-gray-100 px-1 rounded text-red-600">data/taiwan_concepts.json</code>...</p>
+                            <div id="phase1_result" class="hidden mt-2 p-2 bg-gray-50 rounded border border-gray-100 font-mono text-xs text-blue-700">
+                                <!-- JS Injected Content -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 2 -->
+                    <div id="phase2" class="step-card bg-white rounded-lg border border-gray-200 p-4 opacity-50">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold step-num">2</div>
+                            <h3 class="font-bold text-gray-800">Phase 2: LLM Transcreation</h3>
+                        </div>
+                        <div class="ml-9 text-sm text-gray-600">
+                            <p>Injecting cultural tokens into semantic structure...</p>
+                            <div id="phase2_result" class="hidden mt-2 p-3 bg-red-50 rounded border-l-4 border-red-500 text-gray-800 italic">
+                                <!-- JS Injected Content -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phase 3 -->
+                    <div id="phase3" class="step-card bg-white rounded-lg border border-gray-200 p-4 opacity-50">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-bold step-num">3</div>
+                            <h3 class="font-bold text-gray-800">Phase 3: Diffusion Generation</h3>
+                        </div>
+                        <div class="ml-9 text-sm text-gray-600">
+                            <p>Synthesizing pixels using Flux/SDXL pipeline...</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Panel: Visual Output & Metrics -->
+            <div class="lg:col-span-7">
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 h-full flex flex-col overflow-hidden">
+                    <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                        <h2 class="font-bold text-gray-700">生成結果 (Transcreation Result)</h2>
+                        <span id="statusBadge" class="text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-600">Idle</span>
+                    </div>
+                    
+                    <!-- Image Area -->
+                    <div class="flex-grow relative bg-gray-100 flex items-center justify-center min-h-[400px]">
+                        <!-- Placeholder State -->
+                        <div id="imagePlaceholder" class="text-center p-8 transition-opacity duration-300">
+                            <div class="mt-4 text-gray-400">
+                                <i class="fa-solid fa-image text-5xl mb-2"></i>
+                                <p>等待系統執行...</p>
+                            </div>
+                        </div>
+
+                        <!-- Loading State -->
+                        <div id="imageLoader" class="absolute inset-0 bg-white flex flex-col items-center justify-center z-10 hidden">
+                            <div class="w-16 h-16 border-4 border-red-200 border-t-red-600 rounded-full animate-spin mb-4"></div>
+                            <p class="text-red-600 font-bold loading-dots">Transcreating</p>
+                            <p class="text-xs text-gray-400 mt-2 font-mono" id="loadingStep">Initializing...</p>
+                        </div>
+
+                        <!-- Result Image -->
+                        <img id="resultImage" class="absolute inset-0 w-full h-full object-contain hidden z-20" alt="Generated Result">
+                        
+                        <!-- Seed Badge -->
+                        <div id="seedBadge" class="absolute top-4 right-4 bg-black/50 backdrop-blur text-white text-[10px] px-2 py-1 rounded hidden z-30 font-mono">
+                            Seed: <span id="seedDisplay">--</span>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Panel (New Feature) -->
+                    <div id="metricsPanel" class="border-t border-gray-100 bg-white p-5 opacity-50 grayscale transition-all duration-500">
+                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie"></i> Evaluation Metrics (自動評估)
+                        </h3>
+                        <div class="grid grid-cols-2 gap-6">
+                            
+                            <!-- CLIP Score -->
+                            <div class="bg-red-50 p-3 rounded-lg border border-red-100 relative overflow-hidden group">
+                                <div class="flex justify-between items-end mb-2 relative z-10">
+                                    <span class="text-sm font-bold text-red-800">CLIP Score</span>
+                                    <span class="text-lg font-mono font-bold text-red-600" id="clipScoreValue">--</span>
+                                </div>
+                                <div class="w-full bg-red-200 rounded-full h-2 relative z-10">
+                                    <div id="clipBar" class="bg-red-600 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                                </div>
+                                <p class="text-[10px] text-red-400 mt-2 relative z-10">Cultural Relevance (文化相關性)</p>
+                                <!-- Icon Watermark -->
+                                <i class="fa-solid fa-earth-asia absolute -bottom-2 -right-2 text-4xl text-red-100 z-0"></i>
+                            </div>
+
+                            <!-- DINO Score -->
+                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 relative overflow-hidden group">
+                                <div class="flex justify-between items-end mb-2 relative z-10">
+                                    <span class="text-sm font-bold text-blue-800">DINO Score</span>
+                                    <span class="text-lg font-mono font-bold text-blue-600" id="dinoScoreValue">--</span>
+                                </div>
+                                <div class="w-full bg-blue-200 rounded-full h-2 relative z-10">
+                                    <div id="dinoBar" class="bg-blue-600 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                                </div>
+                                <p class="text-[10px] text-blue-400 mt-2 relative z-10">Structural Consistency (結構一致性)</p>
+                                <!-- Icon Watermark -->
+                                <i class="fa-solid fa-shapes absolute -bottom-2 -right-2 text-4xl text-blue-100 z-0"></i>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Knowledge Base Summary (PDF Page 8) -->
+        <div class="mt-12 bg-white rounded-xl shadow p-8">
+            <h2 class="text-2xl font-bold mb-6 border-b pb-2">文化知識庫 (Phase 1 Taxonomy)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Content same as previous version -->
+                <div class="group">
+                    <div class="flex items-center gap-2 mb-3 text-red-600">
+                        <i class="fa-solid fa-bowl-food"></i>
+                        <h3 class="font-bold">飲食 (Food)</h3>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><b>Beef Noodles:</b> Pickled greens (Suancai), dark broth.</span></li>
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><b>Lu Rou Fan:</b> Minced pork, yellow radish.</span></li>
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><b>Bubble Tea:</b> Plastic cup, sealing film.</span></li>
+                    </ul>
+                </div>
+                <div class="group">
+                    <div class="flex items-center gap-2 mb-3 text-red-600">
+                        <i class="fa-solid fa-motorcycle"></i>
+                        <h3 class="font-bold">交通 (Transport)</h3>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><b>Scooter Waterfall:</b> Taipei Bridge, helmets, density.</span></li>
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><b>Blue Truck:</b> "Fa Cai Che", rural delivery.</span></li>
+                    </ul>
+                </div>
+                <div class="group">
+                    <div class="flex items-center gap-2 mb-3 text-red-600">
+                        <i class="fa-solid fa-place-of-worship"></i>
+                        <h3 class="font-bold">建築 (Architecture)</h3>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><b>Temples:</b> Swallow-tail roof, dragons, red pillars.</span></li>
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><b>Iron Grilles:</b> Old apartments, patterned cages.</span></li>
+                    </ul>
+                </div>
+                <div class="group">
+                    <div class="flex items-center gap-2 mb-3 text-red-600">
+                        <i class="fa-solid fa-dragon"></i>
+                        <h3 class="font-bold">節慶 (Festival)</h3>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><b>Ghost Festival:</b> Pudu tables, incense.</span></li>
+                        <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><b>Mazu Pilgrimage:</b> Palanquin, firecrackers.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Data derived from PDF Page 9 & 3
+        const database = {
+            "noodles": {
+                name: "Taiwanese Beef Noodles (牛肉麵)",
+                prompt: "A close-up photo of a bowl of authentic Taiwanese beef noodles, rich dark brown broth, topped with chopped green pickled mustard greens (suancai) and braised beef chunks, thick white noodles, traditional ceramic bowl, chopsticks, steam rising, cinematic lighting, photorealistic, 8k",
+                category: "Food"
+            },
+            "traffic": {
+                name: "Scooter Waterfall (機車瀑布)",
+                prompt: "A wide shot of the 'Scooter Waterfall' in Taipei, hundreds of motorcyclists waiting at a traffic light on a bridge ramp, everyone wearing colorful helmets, dense traffic, rush hour in Taiwan, overcast sky, cinematic urban photography, high detail",
+                category: "Transport"
+            },
+            "building": {
+                name: "Ornate Temple (廟宇)",
+                prompt: "A majestic traditional Taiwanese temple, intricate swallow-tail roof ridge adorned with colorful mosaic dragon sculptures (jiǎnniàn), red stone pillars with carved dragons, hanging red lanterns, incense smoke filling the air, detailed architecture, wide angle",
+                category: "Architecture"
+            },
+            "celebrating": {
+                name: "Ghost Festival (中元普渡)",
+                prompt: "Taiwan Ghost Festival (Zhongyuan Pudu) street scene, long tables set up on the street filled with food offerings and snacks, bundles of incense sticks burning, people praying, triangular religious flags, atmospheric lighting, documentary style",
+                category: "Festival"
+            },
+            "tea": {
+                name: "Bubble Tea (手搖飲)",
+                prompt: "A hand holding a plastic cup of iced bubble milk tea with black tapioca pearls, sealing film lid, thick straw, blurred Taiwan street background with neon signs, condensation on cup, refreshing, lifestyle photography",
+                category: "Food"
+            }
+        };
+
+        function setInput(val) {
+            document.getElementById('inputPrompt').value = val;
+            runSystem();
+        }
+
+        function runSystem() {
+            const input = document.getElementById('inputPrompt').value.toLowerCase();
+            if(!input) return;
+
+            // Reset UI
+            resetSteps();
+            document.getElementById('imagePlaceholder').classList.add('hidden');
+            document.getElementById('resultImage').classList.add('hidden');
+            document.getElementById('seedBadge').classList.add('hidden');
+            document.getElementById('imageLoader').classList.remove('hidden');
+            document.getElementById('statusBadge').className = "text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600";
+            document.getElementById('statusBadge').innerText = "Processing";
+            
+            // Reset Metrics
+            document.getElementById('metricsPanel').classList.add('opacity-50', 'grayscale');
+            document.getElementById('clipBar').style.width = '0%';
+            document.getElementById('dinoBar').style.width = '0%';
+            document.getElementById('clipScoreValue').innerText = '--';
+            document.getElementById('dinoScoreValue').innerText = '--';
+
+            // Phase 1: Retrieval
+            setTimeout(() => {
+                activateStep(1);
+                document.getElementById('loadingStep').innerText = "Retrieving Cultural Tokens...";
+                
+                let matchedKey = null;
+                for(let key in database) {
+                    if(input.includes(key)) matchedKey = key;
+                }
+                
+                let conceptName = "General Taiwan Ambience";
+                let finalPrompt = `A photo taken in Taiwan, ${input}, busy street background with vertical signboards, scooters, authentic taiwanese atmosphere, cinematic lighting, 8k`;
+                let category = "General";
+
+                if(matchedKey) {
+                    const data = database[matchedKey];
+                    conceptName = data.name;
+                    finalPrompt = data.prompt;
+                    category = data.category;
+                }
+
+                document.getElementById('phase1_result').innerHTML = `Detected: <b>${category}</b><br>Concept: ${conceptName}`;
+                document.getElementById('phase1_result').classList.remove('hidden');
+
+                // Phase 2: Transcreation
+                setTimeout(() => {
+                    activateStep(2);
+                    document.getElementById('loadingStep').innerText = "LLM Transcreating Caption...";
+                    
+                    document.getElementById('phase2_result').innerHTML = `"${finalPrompt.substring(0, 100)}..."`;
+                    document.getElementById('phase2_result').classList.remove('hidden');
+
+                    // Phase 3: Generation
+                    setTimeout(() => {
+                        activateStep(3);
+                        document.getElementById('loadingStep').innerText = "Generating Image (Flux)...";
+
+                        const seed = Math.floor(Math.random() * 1000);
+                        document.getElementById('seedDisplay').innerText = seed;
+                        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=1024&height=768&seed=${seed}&nologo=true&model=flux`;
+
+                        const img = new Image();
+                        img.src = imageUrl;
+                        img.onload = () => {
+                            document.getElementById('imageLoader').classList.add('hidden');
+                            document.getElementById('resultImage').src = imageUrl;
+                            document.getElementById('resultImage').classList.remove('hidden');
+                            document.getElementById('seedBadge').classList.remove('hidden');
+                            document.getElementById('statusBadge').className = "text-xs px-2 py-1 rounded-full bg-green-100 text-green-600";
+                            document.getElementById('statusBadge').innerText = "Complete";
+                            
+                            // Trigger Metrics Animation (Phase 4 simulated)
+                            animateMetrics();
+                        };
+                    }, 1500);
+
+                }, 1500);
+
+            }, 1000);
+        }
+
+        function animateMetrics() {
+            document.getElementById('metricsPanel').classList.remove('opacity-50', 'grayscale');
+            
+            // Simulate realistic scores based on generation
+            // CLIP usually between 20-30 for good alignment, we map to % for UI
+            const clipRaw = (Math.random() * (32 - 27) + 27).toFixed(2); 
+            const clipPercent = Math.min((clipRaw / 35) * 100, 100); // Normalize roughly
+            
+            // DINO cosine similarity usually 0.5 - 0.9
+            const dinoRaw = (Math.random() * (0.85 - 0.65) + 0.65).toFixed(3);
+            const dinoPercent = dinoRaw * 100;
+
+            // Animate Numbers
+            const clipObj = { val: 0 };
+            gsap.to(clipObj, {
+                val: clipRaw,
+                duration: 1.5,
+                ease: "power2.out",
+                onUpdate: () => {
+                    document.getElementById('clipScoreValue').innerText = clipObj.val.toFixed(2);
+                }
+            });
+
+            const dinoObj = { val: 0 };
+            gsap.to(dinoObj, {
+                val: dinoRaw,
+                duration: 1.5,
+                ease: "power2.out",
+                onUpdate: () => {
+                    document.getElementById('dinoScoreValue').innerText = dinoObj.val.toFixed(3);
+                }
+            });
+
+            // Animate Bars
+            setTimeout(() => {
+                document.getElementById('clipBar').style.width = `${clipPercent}%`;
+                document.getElementById('dinoBar').style.width = `${dinoPercent}%`;
+            }, 100);
+        }
+
+        function activateStep(num) {
+            document.getElementById(`phase${num}`).classList.remove('opacity-50');
+            document.getElementById(`phase${num}`).classList.add('active');
+            document.querySelector(`#phase${num} .step-num`).classList.remove('bg-gray-200', 'text-gray-600');
+            document.querySelector(`#phase${num} .step-num`).classList.add('bg-red-600', 'text-white');
+        }
+
+        function resetSteps() {
+            [1, 2, 3].forEach(num => {
+                document.getElementById(`phase${num}`).classList.add('opacity-50');
+                document.getElementById(`phase${num}`).classList.remove('active');
+                document.querySelector(`#phase${num} .step-num`).classList.add('bg-gray-200', 'text-gray-600');
+                document.querySelector(`#phase${num} .step-num`).classList.remove('bg-red-600', 'text-white');
+                if(document.getElementById(`phase${num}_result`)) {
+                    document.getElementById(`phase${num}_result`).classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

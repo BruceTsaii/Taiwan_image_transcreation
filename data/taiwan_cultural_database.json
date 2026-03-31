@@ -1,0 +1,94 @@
+{
+  "meta": {
+    "project": "Taiwan Image Transcreation",
+    "slogan": "教AI用台灣的眼睛看世界",
+    "version": "2.0",
+    "source": "Taiwan_Image_Transcreation.pdf"
+  },
+  "taxonomy": {
+    "food_and_drink": {
+      "description": "台灣在地飲食文化",
+      "concepts": [
+        {
+          "id": "beef_noodles",
+          "name": "Taiwanese Beef Noodles",
+          "name_zh": "台灣牛肉麵",
+          "trigger_keywords": ["noodles", "soup", "lunch", "dinner", "bowl"],
+          "cultural_prompt": "A bowl of authentic Taiwanese beef noodles, rich dark broth, topped with green pickled mustard greens (suancai) and braised beef chunks, ceramic bowl, chopsticks",
+          "pdf_reference": "Page 9 Example"
+        },
+        {
+          "id": "braised_pork_rice",
+          "name": "Braised Pork Rice (Lu Rou Fan)",
+          "name_zh": "滷肉飯",
+          "trigger_keywords": ["rice", "meal", "food", "pork"],
+          "cultural_prompt": "A bowl of Braised Pork Rice (Lu Rou Fan), minced pork sauce, yellow pickled radish slice, steamed rice, taiwanese street food style",
+          "pdf_reference": "Page 3 Example"
+        },
+        {
+          "id": "bubble_tea",
+          "name": "Bubble Tea",
+          "name_zh": "手搖飲/珍珠奶茶",
+          "trigger_keywords": ["drink", "tea", "coffee", "cup", "beverage"],
+          "cultural_prompt": "Hand-shaken bubble milk tea with black tapioca pearls, plastic cup with a sealing film lid, wide straw, holding in hand, taiwan street background",
+          "pdf_reference": "Page 3 Example"
+        }
+      ]
+    },
+    "transportation": {
+      "description": "台灣特有交通景象",
+      "concepts": [
+        {
+          "id": "scooter_waterfall",
+          "name": "Scooter Waterfall",
+          "name_zh": "機車瀑布",
+          "trigger_keywords": ["traffic", "cars", "street", "drive", "road"],
+          "cultural_prompt": "The 'Scooter Waterfall' of Taiwan, hundreds of motorcyclists waiting at a traffic light, wearing helmets, busy rush hour at Taipei Bridge, urban chaos",
+          "pdf_reference": "Page 3 Example"
+        }
+      ]
+    },
+    "architecture": {
+      "description": "街道與建築特色",
+      "concepts": [
+        {
+          "id": "temple_ornate",
+          "name": "Ornate Temple",
+          "name_zh": "廟宇",
+          "trigger_keywords": ["building", "church", "house", "worship", "roof"],
+          "cultural_prompt": "Traditional Taiwanese temple, ornate swallow-tail roof ridge with colorful dragon sculptures (jiǎnniàn), red pillars, hanging red lanterns, incense smoke",
+          "pdf_reference": "Page 3 Example"
+        },
+        {
+          "id": "iron_grilles",
+          "name": "Old Apartment with Iron Grilles",
+          "name_zh": "鐵窗花公寓",
+          "trigger_keywords": ["apartment", "window", "balcony", "home"],
+          "cultural_prompt": "Old Taiwanese apartment facade, retro patterned iron window grilles (window cages), potted plants on balcony, mosaic tiles, hanging laundry",
+          "pdf_reference": "Page 3 Example"
+        }
+      ]
+    },
+    "festivals": {
+      "description": "民俗節慶",
+      "concepts": [
+        {
+          "id": "ghost_festival",
+          "name": "Ghost Festival (Pudu)",
+          "name_zh": "中元普渡",
+          "trigger_keywords": ["festival", "party", "celebration", "ghost"],
+          "cultural_prompt": "Ghost Festival (Zhongyuan Pudu) in Taiwan, long tables on the street filled with food offerings, incense sticks, burning joss paper, religious flags",
+          "pdf_reference": "Page 8 Example"
+        },
+        {
+          "id": "mazu_pilgrimage",
+          "name": "Mazu Pilgrimage",
+          "name_zh": "媽祖遶境",
+          "trigger_keywords": ["parade", "walk", "crowd", "god"],
+          "cultural_prompt": "Mazu Pilgrimage procession, palanquin, firecrackers exploding, crowded street, devotees kneeling, traditional religious performance",
+          "pdf_reference": "Page 8 Example"
+        }
+      ]
+    }
+  }
+}
